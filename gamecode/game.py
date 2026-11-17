@@ -71,12 +71,12 @@ class PeakClimber:
                 
                 
 
-                if self.hike_y <= self.targetpos and self.hike_x <= self.targetpos:
-                    self.mountain_y = self.targetpos
-                    self.mountain_x = self.targetpos
+                if self.hike_y <= self.targetpos and self.hike_x >= self.targetpos:
+                    self.hike_y = self.targetpos
+                    self.hike_x = self.targetpos
                     self.climbing = False
 
-            self.mountain_y = -self.hike_y
+            self.mountain_y = self.hike_y
             self.mountain_x = -self.hike_x
 
 
