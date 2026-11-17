@@ -14,7 +14,9 @@ class PeakClimber:
 
         self.mountain_y = 0
         self.mountain_x = 0
-        self.targetpos = 0
+
+        self.targetpos_x = 0
+        self.targetpos_y = -(WINDOW_HEIGHT)
 
         self.hike_x = 0
         self.hike_y = 0
@@ -29,7 +31,7 @@ class PeakClimber:
         self.bg = pygame.transform.scale(self.bg,(WINDOW_WIDTH, WINDOW_HEIGHT))
 
         self.mountain = pygame.image.load(os.path.join( 'data', 'images', 'mountain.png')).convert_alpha()
-        self.mountain = pygame.transform.scale(self.mountain,(WINDOW_WIDTH , WINDOW_HEIGHT))
+        self.mountain = pygame.transform.scale(self.mountain,(WINDOW_WIDTH , WINDOW_HEIGHT *2 ))
 
         self.running = True
 
@@ -52,7 +54,8 @@ class PeakClimber:
                         self.climbing = True
 
                         if self.climbing:
-                            self.targetpos += self.hike_y + 50
+                            self.targetpos_y = self.hike_y - 25
+                            self.targetpos_x = self.hike_x + 50
                             self.Hike = True
             
 
@@ -68,16 +71,13 @@ class PeakClimber:
                 self.hike_x += self.HikeSpeed * dt 
                 self.hike_y -= self.HikeSpeed * dt * 0.5
 
-                
-                
-
-                if self.hike_y <= self.targetpos and self.hike_x >= self.targetpos:
-                    self.hike_y = self.targetpos
-                    self.hike_x = self.targetpos
+                if self.hike_x >= self.targetpos_x:
+                    self.hike_x = self.targetpos_x
+                    self.hike_y = self.targetpos_y
                     self.climbing = False
 
-            self.mountain_y = self.hike_y
-            self.mountain_x = -self.hike_x
+                self.mountain_y = -self.hike_y
+                self.mountain_x = -self.hike_x
 
 
             pygame.display.update()
