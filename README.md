@@ -1,1 +1,1 @@
-# Catch-a-Peak-Rythm
+# Catch-a-Peak-Rhythm
