@@ -16,14 +16,24 @@ class PeakClimber:
         self.mountain_x = 0
         self.targetpos = 0
 
+        self.hike_x = 0
+        self.hike_y = 0
+
         self.climbing = False
         self.Hike = False
         self.HikeSpeed = 350
 
         self.player = Player((WINDOW_WIDTH//2, WINDOW_HEIGHT//2), [])
 
+        self.bg = pygame.image.load(os.path.join( 'data', 'images', 'bg.png')).convert_alpha()
+        self.bg = pygame.transform.scale(self.bg,(WINDOW_WIDTH, WINDOW_HEIGHT))
+
+        self.mountain = pygame.image.load(os.path.join( 'data', 'images', 'mountain.png')).convert_alpha()
+        self.mountain = pygame.transform.scale(self.mountain,(WINDOW_WIDTH , WINDOW_HEIGHT))
 
         self.running = True
+
+
 
 
         self.display_surface.fill("Black")
@@ -42,35 +52,32 @@ class PeakClimber:
                         self.climbing = True
 
                         if self.climbing:
-                            self.targetpos += 50
+                            self.targetpos += self.hike_y + 50
                             self.Hike = True
             
 
-
-            bg = pygame.image.load(os.path.join( 'data', 'images', 'bg.png')).convert_alpha()
-            bg = pygame.transform.scale(bg,(WINDOW_WIDTH, WINDOW_HEIGHT))
-
-            mountain = pygame.image.load(os.path.join( 'data', 'images', 'mountain.png')).convert_alpha()
-            mountain = pygame.transform.scale(mountain,(WINDOW_WIDTH , WINDOW_HEIGHT))
-
-            player = pygame.image.load(os.path.join( 'data', 'images', 'player.png')).convert_alpha()
-            player = pygame.transform.scale(player,(WINDOW_WIDTH, WINDOW_HEIGHT)) 
             
 
-            self.display_surface.blit(bg, (0,0))
-            self.display_surface.blit(mountain, (self.mountain_x, self.mountain_y))
+            self.display_surface.blit(self.bg, (0,0))
+            self.display_surface.blit(self.mountain, (self.mountain_x, self.mountain_y))
             self.display_surface.blit(self.player.image, self.player.rect)
 
             dt = self.clock.tick(60)/ 1000
 
             if self.Hike:
-                self.mountain_y += self.HikeSpeed * dt 
-                self.mountain_x -= self.HikeSpeed * dt 
+                self.hike_x += self.HikeSpeed * dt 
+                self.hike_y -= self.HikeSpeed * dt * 0.5
 
-                if self.mountain_y >= self.targetpos and self.mountain_x <= self.targetpos:
+                
+                
+
+                if self.hike_y <= self.targetpos and self.hike_x <= self.targetpos:
                     self.mountain_y = self.targetpos
                     self.mountain_x = self.targetpos
                     self.climbing = False
+
+            self.mountain_y = -self.hike_y
+            self.mountain_x = -self.hike_x
 
 
             pygame.display.update()
