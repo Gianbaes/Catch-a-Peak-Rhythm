@@ -25,9 +25,16 @@ class PeakClimber:
         self.Hike = False
         self.HikeSpeed = 350
 
+        self.notetarget_x = WINDOW_WIDTH//2  -50
+        self.notetarget_y = WINDOW_HEIGHT//2 - 85
+        self.notetarget_area = 25
+
         self.note_x = WINDOW_WIDTH - 500
         self.note_y = 100
-        self.notespeed = 50
+        self.notespeed = 250
+        self.notemiss = False
+        self.noteIN = False
+        self.noteclicked = False
 
         self.note = pygame.Rect(0,0, 30, 30)
         
@@ -52,7 +59,31 @@ class PeakClimber:
         self.note_x -= self.notespeed * dt
         self.note_y += self.notespeed * dt
 
+        notepos = pygame.math.Vector2(self.note_x, self.note_y)
+        notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
+        newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
+        min_d = 25
+
+        distance = notepos.distance_to(notetarget)
+
+        if distance > min_d :
+            self.noteIN = True
+        else :
+            self.noteIN = False
+
+        if self.noteIN:
+            color = "Green"
+        else:
+            color = "red"
+
+            
+
+
+        pygame.draw.circle(self.display_surface, color, (self.notetarget_x, self.notetarget_y), 15)
+
         pygame.draw.circle(self.display_surface, "Blue", (int(self.note_x), int(self.note_y)), 15)
+
+
 
     def run (self):
         
@@ -62,14 +93,22 @@ class PeakClimber:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_e and not self.climbing:
-                        self.climbing = True
+                    if event.key == pygame.K_w and not self.climbing:
+                        self.climbing = True            
 
-                        if self.climbing:
-                            self.targetpos_y = self.hike_y - 20
-                            self.targetpos_x = self.hike_x + 17
-                            self.Hike = True
 
+
+                    if event.key == pygame.K_e:
+                            self.noteclicked = True                                  
+                            if not self.noteIN and self.noteclicked:
+                            
+                                    self.climbing = True
+
+                    
+                if self.climbing:
+                        self.targetpos_y = self.hike_y - 20
+                        self.targetpos_x = self.hike_x + 17
+                        self.Hike = True
             
             dt = self.clock.tick(60)/ 1000
             
