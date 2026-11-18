@@ -25,6 +25,13 @@ class PeakClimber:
         self.Hike = False
         self.HikeSpeed = 350
 
+        self.note_x = WINDOW_WIDTH - 500
+        self.note_y = 100
+        self.notespeed = 50
+
+        self.note = pygame.Rect(0,0, 30, 30)
+        
+
         self.player = Player((WINDOW_WIDTH//2, WINDOW_HEIGHT//2 - 100), [])
 
         self.bg = pygame.image.load(os.path.join( 'data', 'images', 'bg.png')).convert_alpha()
@@ -40,7 +47,12 @@ class PeakClimber:
 
         self.display_surface.fill("Black")
         
+    def notes(self, dt):    
 
+        self.note_x -= self.notespeed * dt
+        self.note_y += self.notespeed * dt
+
+        pygame.draw.circle(self.display_surface, "Blue", (int(self.note_x), int(self.note_y)), 15)
 
     def run (self):
         
@@ -57,15 +69,18 @@ class PeakClimber:
                             self.targetpos_y = self.hike_y - 20
                             self.targetpos_x = self.hike_x + 17
                             self.Hike = True
-            
 
+            
+            dt = self.clock.tick(60)/ 1000
             
 
             self.display_surface.blit(self.bg, (0,0))
             self.display_surface.blit(self.mountain, (self.mountain_x, self.mountain_y))
+            self.notes(dt) #where the notes is
             self.display_surface.blit(self.player.image, self.player.rect)
 
-            dt = self.clock.tick(60)/ 1000
+
+            
 
             if self.Hike:
                 self.hike_x += self.HikeSpeed * dt 
