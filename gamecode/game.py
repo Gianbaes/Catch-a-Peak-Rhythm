@@ -31,7 +31,7 @@ class PeakClimber:
 
         self.note_x = WINDOW_WIDTH - 500
         self.note_y = 100
-        self.notespeed = 250
+        self.notespeed = 100
         self.notemiss = False
         self.noteIN = False
         self.noteclicked = False
@@ -53,6 +53,15 @@ class PeakClimber:
 
 
         self.display_surface.fill("Black")
+
+    def note_reset (self):
+        self.note_x = WINDOW_WIDTH - 500
+        self.note_y = 100
+        self.notespeed = 100
+        self.notemiss = False
+        self.noteIN = False
+        self.noteclicked = False
+        
         
     def notes(self, dt):    
 
@@ -62,11 +71,11 @@ class PeakClimber:
         notepos = pygame.math.Vector2(self.note_x, self.note_y)
         notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
         newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
-        min_d = 25
+        min_d = 15
 
         distance = notepos.distance_to(notetarget)
 
-        if distance > min_d :
+        if distance <= min_d :
             self.noteIN = True
         else :
             self.noteIN = False
@@ -98,10 +107,10 @@ class PeakClimber:
 
 
 
-                    if event.key == pygame.K_e:
-                            self.noteclicked = True                                  
-                            if not self.noteIN and self.noteclicked:
-                            
+                    if event.key == pygame.K_e: 
+
+                            if self.noteIN and not self.noteclicked and not self.climbing:
+                                    self.noteclicked = True
                                     self.climbing = True
 
                     
@@ -128,7 +137,10 @@ class PeakClimber:
                 if self.hike_x >= self.targetpos_x:
                     self.hike_x = self.targetpos_x
                     self.hike_y = self.targetpos_y
+                    self.note_reset()
                     self.climbing = False
+                    self.Hike = False
+                    
 
                 self.mountain_y = -(WINDOW_HEIGHT* 4) - 350 -self.hike_y
                 self.mountain_x = -(WINDOW_WIDTH * 2) + 2300 -self.hike_x
