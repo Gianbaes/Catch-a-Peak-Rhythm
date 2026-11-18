@@ -18,6 +18,8 @@ class PeakClimber:
         self.targetpos_x = 0
         self.targetpos_y = 0
 
+        self.requiredKey = pygame.K_e
+
         self.hike_x = 0
         self.hike_y = 0
 
@@ -61,6 +63,7 @@ class PeakClimber:
         self.notemiss = False
         self.noteIN = False
         self.noteclicked = False
+        self.requiredKey = pygame.K_w
         
         
     def notes(self, dt):    
@@ -71,7 +74,7 @@ class PeakClimber:
         notepos = pygame.math.Vector2(self.note_x, self.note_y)
         notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
         newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
-        min_d = 15
+        min_d = 25
 
         distance = notepos.distance_to(notetarget)
 
@@ -92,6 +95,10 @@ class PeakClimber:
 
         pygame.draw.circle(self.display_surface, "Blue", (int(self.note_x), int(self.note_y)), 15)
 
+        font = pygame.font.Font(None, 45)
+        keytext = font.render( pygame.key.name(self.requiredKey).upper(), True, "White")
+
+        self.display_surface.blit(keytext, ( self.note_x - 13, self.note_y - 13))
 
 
     def run (self):
@@ -102,19 +109,15 @@ class PeakClimber:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_w and not self.climbing:
-                        self.climbing = True            
-
-
-
-                    if event.key == pygame.K_e: 
+                              
+                    if event.key == self.requiredKey: 
 
                             if self.noteIN and not self.noteclicked and not self.climbing:
                                     self.noteclicked = True
                                     self.climbing = True
 
                     
-                if self.climbing:
+                    if self.climbing:
                         self.targetpos_y = self.hike_y - 20
                         self.targetpos_x = self.hike_x + 17
                         self.Hike = True
