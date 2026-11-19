@@ -1,6 +1,7 @@
 from config import *
 import time
 from player import Player
+import random
 
 class PeakClimber:
     def __init__(self):
@@ -18,8 +19,16 @@ class PeakClimber:
         self.targetpos_x = 0
         self.targetpos_y = 0
 
-        self.requiredKey = pygame.K_e
+        self.notekeys = [
+            pygame.K_w,
+            pygame.K_e,
+            pygame.K_d,
+            pygame.K_s,
+            pygame.K_a,
+            pygame.K_q
+        ]
 
+        self.requiredKey = random.choice(self.notekeys)
         self.hike_x = 0
         self.hike_y = 0
 
@@ -63,8 +72,7 @@ class PeakClimber:
         self.notemiss = False
         self.noteIN = False
         self.noteclicked = False
-        self.requiredKey = pygame.K_w
-        
+        self.requiredKey = random.choice(self.notekeys)
         
     def notes(self, dt):    
 
@@ -118,8 +126,10 @@ class PeakClimber:
 
                     
                     if self.climbing:
-                        self.targetpos_y = self.hike_y - 20
-                        self.targetpos_x = self.hike_x + 17
+                        #self.targetpos_y = self.hike_y - 20
+                        #self.targetpos_x = self.hike_x + 17
+                        self.targetpos_y = self.hike_y - 40
+                        self.targetpos_x = self.hike_x + 40
                         self.Hike = True
             
             dt = self.clock.tick(60)/ 1000
