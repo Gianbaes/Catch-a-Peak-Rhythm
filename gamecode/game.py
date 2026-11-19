@@ -28,7 +28,19 @@ class PeakClimber:
             pygame.K_q
         ]
 
-        self.requiredKey = random.choice(self.notekeys)
+        self.note_list = []
+
+        for i in range(3):
+
+            self.note_list.append({"x" : WINDOW_WIDTH - 500 + (i * 50), 
+                                   "y" : 100 - (i * 50), 
+                                   "requiredKey" : random.choice(self.notekeys),
+                                     "noteclicked" : False,
+                                     "noteIN" : False})
+            self.noteindex = 0
+
+            self.requiredKey = self.note_list[self.noteindex]
+
         self.hike_x = 0
         self.hike_y = 0
 
@@ -40,12 +52,8 @@ class PeakClimber:
         self.notetarget_y = WINDOW_HEIGHT//2 - 85
         self.notetarget_area = 25
 
-        self.note_x = WINDOW_WIDTH - 500
-        self.note_y = 100
         self.notespeed = 100
-        self.notemiss = False
-        self.noteIN = False
-        self.noteclicked = False
+        
 
         self.note = pygame.Rect(0,0, 30, 30)
         
@@ -60,26 +68,45 @@ class PeakClimber:
 
         self.running = True
 
+        self.note_spawn()
+
 
 
 
         self.display_surface.fill("Black")
 
     def note_reset (self):
-        self.note_x = WINDOW_WIDTH - 500
-        self.note_y = 100
-        self.notespeed = 100
-        self.notemiss = False
-        self.noteIN = False
-        self.noteclicked = False
-        self.requiredKey = random.choice(self.notekeys)
         
-    def notes(self, dt):    
 
-        self.note_x -= self.notespeed * dt
-        self.note_y += self.notespeed * dt
+        self.notespeed = 100
 
-        notepos = pygame.math.Vector2(self.note_x, self.note_y)
+        self.note_list = [
+            note for note in self.note_list
+            if not note["noteclicked"]
+        ]
+      
+
+        #self.noteindex += 1
+
+    def note_spawn (self):
+        self.note_list = []
+
+        for i in range (3) :
+            self.note_list.append({"x" : WINDOW_WIDTH - 500 + (i * 50), 
+                                               "y" : 100 - (i * 50), 
+                                               "requiredKey" : random.choice(self.notekeys),
+                                                 "noteclicked" : False,
+                                                 "noteIN" : False})  
+        
+        
+    def notes(self, dt):   
+
+        for note in self.note_list: 
+
+            note["x"] -= self.notespeed * dt
+            note["y"] += self.notespeed * dt
+
+        notepos = pygame.math.Vector2(int(note["x"]), int(note["y"]))
         notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
         newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
         min_d = 25
@@ -87,11 +114,11 @@ class PeakClimber:
         distance = notepos.distance_to(notetarget)
 
         if distance <= min_d :
-            self.noteIN = True
+            note["noteIN"] = True
         else :
-            self.noteIN = False
+            note["noteIN"] = False
 
-        if self.noteIN:
+        if note["noteIN"]:
             color = "Green"
         else:
             color = "red"
@@ -101,12 +128,12 @@ class PeakClimber:
 
         pygame.draw.circle(self.display_surface, color, (self.notetarget_x, self.notetarget_y), 15)
 
-        pygame.draw.circle(self.display_surface, "Blue", (int(self.note_x), int(self.note_y)), 15)
+        pygame.draw.circle(self.display_surface, "Blue", (int(note["x"]), int(note["y"])), 15)
 
         font = pygame.font.Font(None, 45)
-        keytext = font.render( pygame.key.name(self.requiredKey).upper(), True, "White")
+        keytext = font.render( pygame.key.name(note["requiredKey"]).upper(), True, "White")
 
-        self.display_surface.blit(keytext, ( self.note_x - 13, self.note_y - 13))
+        self.display_surface.blit(keytext, ( int(note["x"] - 13 ), int(note["y"] - 13)))
 
 
     def run (self):
@@ -117,12 +144,14 @@ class PeakClimber:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                              
-                    if event.key == self.requiredKey: 
+                
+                    for note in self.note_list:
+                        if event.key == note["requiredKey"]: 
 
-                            if self.noteIN and not self.noteclicked and not self.climbing:
-                                    self.noteclicked = True
-                                    self.climbing = True
+                                if note["noteIN"] and not note["noteclicked"] and not self.climbing:
+                                        note["noteclicked"] = True
+                                        self.climbing = True
+                                        
 
                     
                     if self.climbing:
@@ -138,6 +167,7 @@ class PeakClimber:
             self.display_surface.blit(self.bg, (0,0))
             self.display_surface.blit(self.mountain, (self.mountain_x, self.mountain_y))
             self.notes(dt) #where the notes is
+            
             self.display_surface.blit(self.player.image, self.player.rect)
 
 
@@ -150,10 +180,12 @@ class PeakClimber:
                 if self.hike_x >= self.targetpos_x:
                     self.hike_x = self.targetpos_x
                     self.hike_y = self.targetpos_y
-                    self.note_reset()
+                    
                     self.climbing = False
                     self.Hike = False
+
                     
+                    self.note_spawn()
 
                 self.mountain_y = -(WINDOW_HEIGHT* 4) - 350 -self.hike_y
                 self.mountain_x = -(WINDOW_WIDTH * 2) + 2300 -self.hike_x
