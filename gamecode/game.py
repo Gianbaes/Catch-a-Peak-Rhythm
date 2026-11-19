@@ -41,6 +41,8 @@ class PeakClimber:
 
             self.requiredKey = self.note_list[self.noteindex]
 
+        self.prespawn =  False
+
         self.hike_x = 0
         self.hike_y = 0
 
@@ -48,11 +50,13 @@ class PeakClimber:
         self.Hike = False
         self.HikeSpeed = 350
 
+        self.noteclicks = 0
+
         self.notetarget_x = WINDOW_WIDTH//2  -50
         self.notetarget_y = WINDOW_HEIGHT//2 - 85
         self.notetarget_area = 25
 
-        self.notespeed = 100
+        self.notespeed = 75
         
 
         self.note = pygame.Rect(0,0, 30, 30)
@@ -78,13 +82,19 @@ class PeakClimber:
     def note_reset (self):
         
 
-        self.notespeed = 100
+        self.notespeed = 75
 
         self.note_list = [
             note for note in self.note_list
             if not note["noteclicked"]
         ]
-      
+
+        self.noteclicks += 1
+
+        if self.noteclicks == 3:
+            self.note_spawn()
+            self.noteclicks = 0
+
 
         #self.noteindex += 1
 
@@ -92,8 +102,8 @@ class PeakClimber:
         self.note_list = []
 
         for i in range (3) :
-            self.note_list.append({"x" : WINDOW_WIDTH - 500 + (i * 50), 
-                                               "y" : 100 - (i * 50), 
+            self.note_list.append({"x" : WINDOW_WIDTH - 550 + (i * 100), 
+                                               "y" : 135 - (i * 100), 
                                                "requiredKey" : random.choice(self.notekeys),
                                                  "noteclicked" : False,
                                                  "noteIN" : False})  
@@ -102,39 +112,38 @@ class PeakClimber:
     def notes(self, dt):   
 
         for note in self.note_list: 
+            if not note["noteclicked"]:
+                note["x"] -= self.notespeed * dt
+                note["y"] += self.notespeed * dt
+      
+            notepos = pygame.math.Vector2(int(note["x"]), int(note["y"]))
+            notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
+            newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
+            min_d = 25
 
-            note["x"] -= self.notespeed * dt
-            note["y"] += self.notespeed * dt
+            distance = notepos.distance_to(notetarget)
 
-        notepos = pygame.math.Vector2(int(note["x"]), int(note["y"]))
-        notetarget = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
-        newnotepos = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
-        min_d = 25
+            if distance <= min_d :
+                note["noteIN"] = True
+            else :
+                note["noteIN"] = False
 
-        distance = notepos.distance_to(notetarget)
+            if any(note["noteIN"] for note in self.note_list):
+                color = "Green"
+            else:
+                color = "red"
 
-        if distance <= min_d :
-            note["noteIN"] = True
-        else :
-            note["noteIN"] = False
+                
 
-        if note["noteIN"]:
-            color = "Green"
-        else:
-            color = "red"
+            pygame.draw.circle(self.display_surface, "blue",
+                                (int(note["x"]), int(note["y"])), 15)
 
-            
+            font = pygame.font.Font(None, 45)
+            keytext = font.render( pygame.key.name(note["requiredKey"]).upper(), True, "White")
 
+            self.display_surface.blit(keytext, ( int(note["x"] - 13 ), int(note["y"] - 13)))
 
         pygame.draw.circle(self.display_surface, color, (self.notetarget_x, self.notetarget_y), 15)
-
-        pygame.draw.circle(self.display_surface, "Blue", (int(note["x"]), int(note["y"])), 15)
-
-        font = pygame.font.Font(None, 45)
-        keytext = font.render( pygame.key.name(note["requiredKey"]).upper(), True, "White")
-
-        self.display_surface.blit(keytext, ( int(note["x"] - 13 ), int(note["y"] - 13)))
-
 
     def run (self):
         
@@ -151,6 +160,7 @@ class PeakClimber:
                                 if note["noteIN"] and not note["noteclicked"] and not self.climbing:
                                         note["noteclicked"] = True
                                         self.climbing = True
+                                        self.note_reset()
                                         
 
                     
@@ -185,7 +195,7 @@ class PeakClimber:
                     self.Hike = False
 
                     
-                    self.note_spawn()
+                    
 
                 self.mountain_y = -(WINDOW_HEIGHT* 4) - 350 -self.hike_y
                 self.mountain_x = -(WINDOW_WIDTH * 2) + 2300 -self.hike_x
