@@ -16,6 +16,9 @@ class PeakClimber:
         self.mountain_y = -(WINDOW_HEIGHT* 4) - 350
         self.mountain_x = -(WINDOW_WIDTH * 2) + 2300
 
+        self.peak_rect = pygame.Rect( self.mountain_x + int(151 * 19.22) , self.mountain_y + (28 * 24) - 130,
+                                      int(300 * 2), int(15 * 4)) 
+
         self.targetpos_x = 0
         self.targetpos_y = 0
 
@@ -99,7 +102,7 @@ class PeakClimber:
             self.notespeed_Centralized += 25
         if self.notespeed_Centralized > 200 and self.notespeed_Centralized < 250:
             self.notespeed_Centralized -= 75
-            
+
         print(self.notespeed_Centralized)
         
         self.note_list = [
@@ -171,7 +174,10 @@ class PeakClimber:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                
+
+                    if event.key == pygame.K_SPACE:
+                        self.climbing = True
+
                     for note in self.note_list:
                         if event.key == note["requiredKey"]: 
 
@@ -186,7 +192,7 @@ class PeakClimber:
                         #self.targetpos_x = self.hike_x + 17
 
                         self.targetpos_y = self.hike_y - 40
-                        self.targetpos_x = self.hike_x + 40
+                        self.targetpos_x = self.hike_x + 35
                         self.Hike = True
             
             dt = self.clock.tick(60)/ 1000
@@ -195,8 +201,14 @@ class PeakClimber:
             self.display_surface.blit(self.bg, (0,0))
             self.display_surface.blit(self.mountain, (self.mountain_x, self.mountain_y))
             self.notes(dt) #where the notes is
+
+      
             
             self.display_surface.blit(self.player.image, self.player.rect)
+
+
+            if self.player.rect.colliderect(self.peak_rect):
+                print("Peak Reached")
 
 
             if self.Hike:
@@ -213,6 +225,13 @@ class PeakClimber:
 
                 self.mountain_y = -(WINDOW_HEIGHT* 4) - 350 -self.hike_y
                 self.mountain_x = -(WINDOW_WIDTH * 2) + 2300 -self.hike_x
+
+                self.peak_rect.topleft =(
+                    self.mountain_x + int(171 * 19.2) ,
+                    self.mountain_y + int(28 * 24) - 130
+                )
+
+                print(self.peak_rect)
 
 
             pygame.display.update()
