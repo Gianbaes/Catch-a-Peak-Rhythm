@@ -91,19 +91,19 @@ class PeakClimber:
 
         self.player = Player((WINDOW_WIDTH//2, WINDOW_HEIGHT//2 - 100), [])
 
-        self.bg = pygame.image.load(os.path.join( 'data', 'images', 'bg.png')).convert_alpha()
+        self.bg = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'bg.png')).convert_alpha()
         self.bg = pygame.transform.scale(self.bg,(WINDOW_WIDTH, WINDOW_HEIGHT))
 
-        self.winDOW = pygame.image.load(os.path.join( 'data', 'images', 'winDOW.png')).convert_alpha()
+        self.winDOW = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'winDOW.png')).convert_alpha()
         self.winDOW = pygame.transform.scale(self.winDOW,(WINDOW_WIDTH, WINDOW_HEIGHT))
 
-        self.loseDOW = pygame.image.load(os.path.join( 'data', 'images', 'loseDOW.png')).convert_alpha()
+        self.loseDOW = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'loseDOW.png')).convert_alpha()
         self.loseDOW = pygame.transform.scale(self.loseDOW,(WINDOW_WIDTH, WINDOW_HEIGHT))
 
-        self.midbg = pygame.image.load(os.path.join( 'data', 'images', 'midground.png')).convert_alpha()
+        self.midbg = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'midground.png')).convert_alpha()
         self.midbg = pygame.transform.scale(self.midbg,(WINDOW_WIDTH, WINDOW_HEIGHT // 2 + 400))
         
-        self.mountain = pygame.image.load(os.path.join( 'data', 'images', 'mountain.png')).convert_alpha()
+        self.mountain = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'mountain.png')).convert_alpha()
         self.mountain = pygame.transform.scale(self.mountain,(WINDOW_WIDTH * 3, WINDOW_HEIGHT  * 5 ))
 
         self.running = True
@@ -261,7 +261,7 @@ class PeakClimber:
                 if event.button == 1:
                     clicking = True
 
-        window = pygame.image.load(os.path.join( 'data', 'images', 'winDOW.png')).convert()
+        window = pygame.image.load(os.path.join(BASE_DIR, 'data', 'images', 'winDOW.png')).convert()
         window = pygame.transform.scale(window, (1000, 500))
 
         mouse_X, mouse_Y = pygame.mouse.get_pos()
