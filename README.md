@@ -1,4 +1,5 @@
 # Catch-a-Peak-Rhythm
+![alt text](data/images/scrnshot.png)
 
 # Descrition 
 time your button presses correctly and slowly reach the summit, let down your guard and miss a note may cause you to start at the very bottom again.
