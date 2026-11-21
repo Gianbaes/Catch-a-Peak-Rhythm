@@ -65,11 +65,16 @@ class PeakClimber:
         self.hike_x = 0
         self.hike_y = 0
 
+        self.distance_to_peak = 0
+        self.max_distduration = 3205
+
         self.climbing = False
         self.Hike = False
         self.pause = False
         self.playerwon = False
-        self.plsyerlose = False
+        self.playerlose = False
+        self.AllowMovement = True
+
         self.HikeSpeed = 350
 
         self.noteclicks = 0
@@ -96,7 +101,7 @@ class PeakClimber:
         self.loseDOW = pygame.transform.scale(self.loseDOW,(WINDOW_WIDTH, WINDOW_HEIGHT))
 
         self.midbg = pygame.image.load(os.path.join( 'data', 'images', 'midground.png')).convert_alpha()
-        self.midbg = pygame.transform.scale(self.midbg,(WINDOW_WIDTH, WINDOW_HEIGHT // 2 + 200))
+        self.midbg = pygame.transform.scale(self.midbg,(WINDOW_WIDTH, WINDOW_HEIGHT // 2 + 400))
         
         self.mountain = pygame.image.load(os.path.join( 'data', 'images', 'mountain.png')).convert_alpha()
         self.mountain = pygame.transform.scale(self.mountain,(WINDOW_WIDTH * 3, WINDOW_HEIGHT  * 5 ))
@@ -147,7 +152,7 @@ class PeakClimber:
 
         for note in self.note_list: 
 
-            if not self.pause :
+            if not self.pause and not self.playerwon:
                 if not note["noteclicked"]:
                     note["x"] -= self.notespeed_Centralized * dt
                     note["y"] += self.notespeed_Centralized * dt
@@ -183,7 +188,6 @@ class PeakClimber:
 
     def pausemenu (self):
         clicking = False
-         
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -193,6 +197,7 @@ class PeakClimber:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                         self.pause = False
+                        self.AllowMovement = True
    
         self.ambience_dark = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
         self.ambience_dark.fill ((0, 0, 0, 100))
@@ -236,15 +241,53 @@ class PeakClimber:
 
         if mouse_alligned_resume and clicking == True :
             self.pause = False
+            self.AllowMovement = True
 
         if mouse_alligned_reset and clicking == True :
             self.__init__()
             self.pause = False
+            self.AllowMovement = True
 
 
         if mouse_alligned_return and clicking == True  :
             self.running = False
             
+    def playerWin (self):
+        clicking = False
+             
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    clicking = True
+
+        window = pygame.image.load(os.path.join( 'data', 'images', 'winDOW.png')).convert()
+        window = pygame.transform.scale(window, (1000, 500))
+
+        mouse_X, mouse_Y = pygame.mouse.get_pos()
+        
+        self.display_surface.blit( window, (150,120))
+
+
+
+
+        font = pygame.font.Font(None, 100)
+        retry_text = font.render(f"Return", True, "yellow")
+        retry_rect = retry_text.get_rect(center =
+                                            (650,550)
+                                    )
+
+        self.display_surface.blit (retry_text, retry_rect)         
+        
+        mouse_alligned_return = retry_rect.collidepoint((mouse_X, mouse_Y)) 
+                
+        
+        
+        if mouse_alligned_return and clicking == True  :
+            self.running = False
+            self.AllowMovement = True
+
+        pygame.display.update()
 
     def run (self):
         
@@ -254,18 +297,20 @@ class PeakClimber:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-
+                    if self.AllowMovement:
+                        if event.key == pygame.K_t: #for testing purposes to quickly climb
+                            self.climbing = True
 
                     if event.key == pygame.K_SPACE:
                         self.pause = True
 
                     for note in self.note_list:
-                        if event.key == note["requiredKey"]: 
-
-                                if note["noteIN"] and not note["noteclicked"] and not self.climbing:
-                                        note["noteclicked"] = True
-                                        self.climbing = True
-                                        self.note_reset()
+                        if self.AllowMovement :   
+                            if event.key == note["requiredKey"]: 
+                                    if note["noteIN"] and not note["noteclicked"] and not self.climbing:
+                                            note["noteclicked"] = True
+                                            self.climbing = True
+                                            self.note_reset()
                                         
  
                     if self.climbing:
@@ -284,17 +329,51 @@ class PeakClimber:
             self.display_surface.blit(self.mountain, (self.mountain_x, self.mountain_y))
             self.notes(dt) #where the notes is
 
-      
-            
             self.display_surface.blit(self.player.image, self.player.rect)
+
+
+
+            player = pygame.math.Vector2(self.notetarget_x, self.notetarget_y)
+            peaktarget = pygame.math.Vector2(self.mountain_x + int(151 * 19.22), self.mountain_y + (28 * 24) - 130 ) 
+            
+            self.distance_to_peak = player.distance_to(peaktarget)
+            self.distance_to_peak = self.distance_to_peak - 400
+            print(self.distance_to_peak)
+
+            distbar_width =300
+            distbar_height = 30
+            fill_ratio = self.distance_to_peak / self.max_distduration
+            fill_width = int(distbar_width * fill_ratio)
+
+
+            distbar_bg_rect = pygame.Rect(500, 10, distbar_width, distbar_height)
+            pygame.draw.rect(self.display_surface, (50, 50, 50), distbar_bg_rect, border_radius = 4)
+
+            if fill_width > 0 :
+                  fill_rect = pygame.Rect(500,10, fill_width, distbar_height)
+                  pygame.draw.rect(self.display_surface, (0,191,255), fill_rect, border_radius = 4)
+
+            pygame.draw.rect(self.display_surface, (255, 255, 255), distbar_bg_rect, width=2, border_radius=4)
+
+            font = pygame.font.Font(None, 30)
+            DistanceCounter = font.render(f"Mountain Peak:  {int(self.distance_to_peak)} meters ", True, "White")
+            self.display_surface.blit(DistanceCounter,(520, 13))
+            
 
             if self.pause:
                 self.pausemenu()
-                
+                self.AllowMovement = False
+            else:
+                self.AllowMovement = True
 
             if self.player.rect.colliderect(self.peak_rect):
-                print("Peak Reached")
+                self.playerwon = True
 
+            if self.playerwon:
+                self.playerWin()
+                self.AllowMovement = False
+            else:
+                self.AllowMovement = True
 
             if self.Hike:
                 self.hike_x += self.HikeSpeed * dt 
@@ -316,7 +395,7 @@ class PeakClimber:
                     self.mountain_y + int(28 * 24) - 130
                 )
 
-                print(self.peak_rect)
+               
 
             
             pygame.display.update()
